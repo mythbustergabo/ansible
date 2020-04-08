@@ -1,0 +1,9 @@
+- name: Desisntalando Docker
+  hosts: 192.168.0.100
+  become: true
+  remote_user: centos
+  tasks:
+    - name: Eliminar Docker
+      yum: name=docker state=absent
+    - name: Eliminar Docker cli
+      yum: name=docker-ce-cli state=absent

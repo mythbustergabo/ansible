@@ -1,0 +1,28 @@
+- name: Creando usuarios desde Ansible
+  hosts: 10.10.10.201
+  tasks:
+    - name: Creando un usuario administrador
+      user:
+        name: adm1
+        comment: Administrador de servidor
+        uid: 6001
+        group: administradores
+        groups: web
+        shell: /bin/bash
+        append: yes
+        expires: -1
+        create_home: yes
+        home: /administradores/adm1
+        password: "$6$mysecretsalt$3qdsKJDwrHZQgnKrLs/N1giHaHD/WYt6iX1coeG4RtcrmucN9qFfV0BXmM9FAC9RN0U7b.kG0SvTHVmLmUv1d0"
+    - name: Creando un usuario web
+      user:
+        name: web1
+        comment: Administrador de apache
+        uid: 7001
+        group: web
+        shell: /bin/bash
+        append: yes
+        expires: -1
+        create_home: yes
+        home: /web/web1
+        password: "$6$mysecretsalt$3qdsKJDwrHZQgnKrLs/N1giHaHD/WYt6iX1coeG4RtcrmucN9qFfV0BXmM9FAC9RN0U7b.kG0SvTHVmLmUv1d0"

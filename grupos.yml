@@ -1,0 +1,14 @@
+- name: Creando usuarios desde Ansible
+  hosts: 192.168.0.100
+  tasks:
+    - name: creando grupo administradores
+      group:
+        name: administradores
+        state: present
+        gid: 3000
+    - name: creando grupo web
+      group:
+        name: web
+        state: present
+        gid: 4000
+

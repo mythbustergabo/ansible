@@ -1,0 +1,55 @@
+- name: creando particionado de disco y lvs
+  hosts: docker
+  tasks:
+    - name: Create a new primary partition for LVM
+      parted:
+        device: /dev/sdb
+        number: 1
+        flags: [ lvm ]
+        state: present
+        part_start: 0%
+        part_end: 100%
+
+    - name: Remove a volume group with name vg.services
+      lvg:
+        vg: vg.volume1
+        state: absent
+        force: yes
+    
+    - name: Create a volume on top of /dev/sdb with physical extent size = 4MB
+      lvg:
+        vg: vg.volume1
+        pvs: /dev/sdb1
+        state: present
+        pesize: 4m
+
+    - name: Create a logical volume of 1g
+      lvol:
+        vg: vg.volume1
+        lv: test
+        size: 1g
+
+    - name: Create a logical volume the size of all remaining space in the volume group
+      lvol:
+        vg: vg.volume1
+        lv: test
+        size: 50%FREE
+
+    - name: Extend the logical volume to consume all remaining space in the volume group
+      lvol:
+        vg: vg.volume1
+        lv: test
+        size: +100%FREE
+
+    - name: Create a ext4 filesystem on /dev/sdb1 and check disk blocks
+      filesystem:
+        fstype: ext4
+        dev: /dev/mapper/vg.volume1-test
+        
+    - name: Mount and bind a volume
+      mount:
+        src: UUID="b7d55e23-979c-42a9-9c79-f787171760e5"
+        path: /disco1
+        opts: noatime
+        state: present
+        fstype: ext4
