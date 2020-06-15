@@ -1,9 +1,47 @@
-- name: Desisntalando Docker
-  hosts: 192.168.0.100
+- name: Instalando Paquetes
+  hosts: test
   become: true
-  remote_user: centos
+  remote_user: root
   tasks:
-    - name: Eliminar Docker
-      yum: name=docker state=absent
-    - name: Eliminar Docker cli
-      yum: name=docker-ce-cli state=absent
+    - name: Instalar epel-repository
+      yum: name=epel-release state=present
+    - name: Instalar wget
+      yum: name=wget state=present
+    - name: Instalar iscsi-initiator-utils
+      yum: name=iscsi-initiator-utils state=present
+    - name: Instalar yum utils
+      yum: name=yum-utils state=present
+    - name: Firewalld deshabilitando
+      service:
+        name: firewalld
+        state: stopped
+    - service: name={{item}} enabled=no state=stopped
+      with_items:
+      - firewalld
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+    - name: Disable SWAP (1/2)
+      shell: |
+       swapoff -a
+    - name: Disable SWAP in fstab (2/2)
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+        replace: '# \1'
+    - name: Add repo Docker
+      shell: |
+       yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    - name: Instalando Docker
+      shell: |
+       yum -y install docker-ce-18.06.1.ce-3.el7
+#    - name: Add Repository
+#      yum_repository:
+#        name: kubernetes
+#        description: kubernetes YUM REPO
+#        baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+#        enabled: yes
+#        gpgcheck: yes
+#        repo_gpgcheck: yes 
+#    - name: Instalando kubernetes
+#      yum: name=kubectl state=present
